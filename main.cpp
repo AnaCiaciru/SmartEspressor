@@ -279,13 +279,17 @@ private:
             sugarSetting.value = 0;
         }
 
+        void cleanSize(){
+            sizeSetting.name = "Blank";
+            sizeSetting.value = 0;
+        }
+
         void cleanAll(){
             /// sugar
             cleanSugar();
 
             /// size
-            sugarSetting.name = "Blank";
-            sugarSetting.value = 0;
+            cleanSize();
 
             /// type
             coffeeType = none;
