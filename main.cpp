@@ -70,8 +70,8 @@ private:
         Routes::Post(router, "/settings/:settingName/:value", Routes::bind(&EspressorEndPoint::setSetting, this));
         Routes::Get(router, "/settings/:settingName/", Routes::bind(&EspressorEndPoint::getSetting, this));
 
-        /// TODO: Un mod pentru curățarea automată a aparatului
-        /// clean/all
+        /// Un mod pentru curățarea automată a aparatului
+        /// clean/all (sugar/size/aroma/type)
         Routes::Get(router, "/clean/:value", Routes::bind(&EspressorEndPoint::doClean, this));
 
     }
@@ -108,7 +108,10 @@ private:
         }
 
         if(val == "all"){
-            espr.clean();
+            espr.cleanAll();
+        }
+        if(val == "sugar"){
+            espr.cleanSugar();
         }
 
         response.send(Http::Code::Ok, "Clean is Done!");
@@ -176,7 +179,7 @@ private:
         explicit Espressor() {}
 
         int set(std::string name, std::string val) {
-            int value = std::stoi(val);
+            int value = std::stoi(val); ///TODO
 
             if (name == "sugar") {
                 sugarSetting.name = name;
@@ -271,10 +274,15 @@ private:
             }
         }
 
-        void clean(){
-            /// sugar
+        void cleanSugar(){
             sugarSetting.name = "Blank";
             sugarSetting.value = 0;
+        }
+
+        void cleanAll(){
+            /// sugar
+            cleanSugar();
+
             /// size
             sugarSetting.name = "Blank";
             sugarSetting.value = 0;
