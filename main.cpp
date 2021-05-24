@@ -246,7 +246,7 @@ private:
 
             /// caramel/coconut/vanilla/cacao/rum/none)
             if (name == "aroma") {
-                aromaSetting = name;
+                aromaSetting.name = name;
 
                 string possibleValues[6] = {"caramel", "coconut", "vanilla", "cacao", "rum", "none"};
                 for (int i = 0; i < 6; i++)
