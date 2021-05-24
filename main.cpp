@@ -213,9 +213,9 @@ private:
         explicit Espressor() {}
 
         int set(std::string name, std::string val) {
-            int value = std::stoi(val);
 
             if (name == "sugar") {
+                int value = std::stoi(val);
                 sugarSetting.name = name;
                 /// putem pune intre 1 si 5 pachetele de zahar
                 if (value >= 1 && value < 5) {
