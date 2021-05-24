@@ -6,7 +6,6 @@
         "1":{
             "token-delimitators": "",
             "protocol": "HTTP",
-            "_comment": "mai jos a schimbat Adrian",
             "prefix": "curl -XPOST 'http://127.0.0.1:9080/'",
             "buffer-tokens":[
             {
@@ -18,7 +17,7 @@
                 "optional": false
             },
             {
-                "name":"Espressor settings parameter (size or sugar)",
+                "name":"Espressor settings parameter (size/sugar/aroma)",
                 "description": "Parameter key for the setting chosen",
                 "token-type":"string",
                 "byte-size":10,
@@ -28,10 +27,9 @@
             {
                 "name":"Espressor option parameter value",
                 "description": "Parameter value for the setting chosen",
-                "_comment": "mai jos a schimbat Adrian",
                 "token-type":"string",
                 "byte-size":10,
-                "regex-rule": "[a-zA-Z]*",
+                "regex-rule": "[a-zA-Z1-5]*",
                 "optional": false
             }
             ]
@@ -39,7 +37,6 @@
         "2":{
             "token-delimitators": "",
             "protocol": "HTTP",
-            "_comment": "mai jos a schimbat Adrian",
             "prefix": "curl -XPOST 'http://127.0.0.1:9080/'",
             "buffer-tokens":[
             {
@@ -55,7 +52,7 @@
                 "description": "The type of the choosen coffee: americano, cappuccino, latte_machiato or mocha",
                 "token-type":"string",
                 "byte-size":10,
-                "regex-rule": "[a-zA-Z]*",
+                "regex-rule": "[a-zA-Z_]*",
                 "optional": false
             }
             ]
@@ -67,7 +64,6 @@
         "1":{
             "token-delimitators": "",
             "protocol": "HTTP",
-            "_comment": "mai jos a schimbat Adrian",
             "prefix": "curl -XGET 'http://127.0.0.1:9080/'",
             "buffer-tokens":[
             {
@@ -92,7 +88,6 @@
         "2":{
             "token-delimitators": "",
             "protocol": "HTTP",
-            "_comment": "mai jos a schimbat Adrian",
             "prefix": "curl -XGET 'http://127.0.0.1:9080/'",
             "buffer-tokens":[
             {
@@ -104,9 +99,29 @@
                 "optional": false
             }
             ]
+        },
+        "3":{
+            "token-delimitators": "",
+            "protocol": "HTTP",
+            "prefix": "curl -XGET 'http://127.0.0.1:9080/'",
+            "buffer-tokens":[
+            {
+                "name":"Reset a setting",
+                "description":"",
+                "token-type":"string", 
+                "byte-size":10, 
+                "regex-rule": "[a-zA-Z]*",
+                "optional": false
+            },
+            {
+                "name":"Value of the setting",
+                "description":"The setting you want to reset (sugar/size/aroma/type",
+                "token-type":"string", 
+                "byte-size":10, 
+                "regex-rule": "[a-zA-Z]*",
+                "optional": false
+            }
+            ]
         }
     }
 }
-
-
-
