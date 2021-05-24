@@ -182,16 +182,16 @@ private:
         int value;
 
         if (typeName == "") {
-            response.send(Http:Code::Not_Found, "type is not valid!");
+            response.send(Http::Code::Not_Found, "type is not valid!");
             return;
         }
 
         int setResponse = espr.setType(typeName);
 
         if (setResponse == 0) {
-            response.send(Http:Code::Not_Found, "value is not valid!");
+            response.send(Http::Code::Not_Found, "value is not valid!");
         } else {
-            response.send(Http:Code::Ok, typeName + " was set!");
+            response.send(Http::Code::Ok, typeName + " was set!");
         }
     }
 
