@@ -65,13 +65,17 @@ private:
 
         /// settings/sugar/4
         /// settings/size/small(medium, large)
-        /// settings/type/americano
-        /// TODO: settings/aroma/caramel(coconut, vanilla)
+        /// settings/aroma(caramel,coconut, vanilla,rum,none)
+
         Routes::Post(router, "/settings/:settingName/:value", Routes::bind(&EspressorEndPoint::setSetting, this));
         Routes::Get(router, "/settings/:settingName/", Routes::bind(&EspressorEndPoint::getSetting, this));
 
+        /// settings/type/americano(cappuccino,latte_machiato,mocha,espresso,none)
+        Routes::Post(router, "/type/:typeName/", Routes::bind(&EspressorEndPoint::setType, this));
+        Routes::Get(router, "/type/", Routes::bind(&EspressorEndPoint::getType, this));
+
         /// Un mod pentru curățarea automată a aparatului
-        /// clean/all (sugar/size/aroma/type)
+        /// clean/all (sugar/size/aroma/type) -> merge doar ptr sugar
         Routes::Get(router, "/clean/:value", Routes::bind(&EspressorEndPoint::doClean, this));
 
     }
@@ -85,16 +89,6 @@ private:
         response.send(Http::Code::Ok, "Auth is Done!");
     }
 
-
-    struct setting {
-        std::string name;
-        int value;
-    } sugarSetting, sizeSetting;
-
-    enum type {
-        americano = 1, cappuccino = 2, latte_machiato = 3, mocha = 4, espresso = 5, none = 6
-    } coffeeType;
-
     void doClean(const Rest::Request &request, Http::ResponseWriter response) {
         /// practic vom pune toate valorile pe null
 
@@ -107,19 +101,26 @@ private:
             val = value.as<std::string>();
         }
 
-        if(val == "all"){
+        if (val == "all") {
             espr.cleanAll();
         }
-        if(val == "sugar"){
+        if (val == "sugar") {
             espr.cleanSugar();
         }
+        if (val == "size")
+            espr.cleanSize();
+        if (val == "type")
+            espr.cleanType();
+
+        if (val == "aroma")
+            espr.cleanAroma();
 
         response.send(Http::Code::Ok, "Clean is Done!");
     }
 
     /// settings
     void setSetting(const Rest::Request &request, Http::ResponseWriter response) {
-        /// primul parametru sugar sau size
+        /// sugar/size/type/aroma
         auto settingName = request.param(":settingName").as<std::string>();
 
         // This is a guard that prevents editing the same value by two concurent threads.
@@ -151,7 +152,7 @@ private:
 
     // Endpoint to get one of the Espressor's settings.
     void getSetting(const Rest::Request &request, Http::ResponseWriter response) {
-        /// sugar/size
+        /// sugar/size/type/aroma
         auto settingName = request.param(":settingName").as<std::string>();
 
         Guard guard(espressorLock);
@@ -173,13 +174,46 @@ private:
 
     }
 
+    /// avem doar typeName ca parametru
+    void setType(const Rest::Request &request, Http::ResponseWriter response) {
+        auto typeName = request.param(":typeName").as<std::string>();
+
+        Guard guard(espressorLock);
+        int value;
+
+        if (typeName == "") {
+            response.send(Http:Code::Not_Found, "type is not valid!");
+            return;
+        }
+
+        int setResponse = espr.setType(typeName);
+
+        if (setResponse == 0) {
+            response.send(Http:Code::Not_Found, "value is not valid!");
+        } else {
+            response.send(Http:Code::Ok, typeName + " was set!");
+        }
+    }
+
+    void getType(const Rest::Request &request, Http::ResponseWriter response) {
+        Guard guard(espressorLock);
+        string getResponse = espr.getType();
+
+        if (getResponse == "") {
+            response.send(Http::Code::Not_Found, "coffee type is not valid!");
+            return;
+        } else {
+            response.send(Http::Code::Ok, "Selected coffee: " + getResponse);
+        }
+
+    }
 
     class Espressor {
     public:
         explicit Espressor() {}
 
         int set(std::string name, std::string val) {
-            int value = std::stoi(val); ///TODO
+            int value = std::stoi(val);
 
             if (name == "sugar") {
                 sugarSetting.name = name;
@@ -198,20 +232,30 @@ private:
                     return 1;
                 }
 
-                if(val == "medium"){
+                if (val == "medium") {
                     sizeSetting.value = 2;
                     return 1;
                 }
 
-                if(val == "large") {
+                if (val == "large") {
                     sizeSetting.value = 3;
                     return 1;
                 }
             }
 
-            if (name == "type") {
-                return setType(val);
+
+            /// caramel/coconut/vanilla/cacao/rum/none)
+            if (name == "aroma") {
+                aromaSetting = name;
+
+                string possibleValues[6] = {"caramel", "coconut", "vanilla", "cacao", "rum", "none"};
+                for (int i = 0; i < 6; i++)
+                    if (val == possibleValues[i]) {
+                        aromaSetting.value = i + 1;
+                        return 1;
+                    }
             }
+
             return 0;
 
         }
@@ -219,10 +263,24 @@ private:
         string get(std::string name) {
             if (name == "sugar")
                 return std::to_string(sugarSetting.value);
-            if (name == "size")
-                return std::to_string(sizeSetting.value);
+            if (name == "size") {
+                int size_value = sizeSetting.value;
+                if (size_value == 1)
+                    return "small";
+                if (size_value == 2)
+                    return "medium";
+                if (size_value == 3)
+                    return "large";
+            }
+
             if (name == "type")
                 return getType();
+
+            if (name == "aroma") {
+                int aroma_value = aromaSetting.value;
+                string possibleValues[6] = {"caramel", "coconut", "vanilla", "cacao", "rum", "none"};
+                return possibleValues[aroma_value - 1];
+            }
             return "";
         }
 
@@ -231,7 +289,7 @@ private:
         int setType(std::string typeName) {
             // espresso, americano, cappuccino, latte_machiato, mocha
             if (typeName == "espresso") {
-                coffeeType = americano;
+                coffeeType = espresso;
                 return 1;
             }
 
@@ -274,27 +332,37 @@ private:
             }
         }
 
-        void cleanSugar(){
+        void cleanSugar() {
             sugarSetting.name = "Blank";
             sugarSetting.value = 0;
         }
 
-        void cleanSize(){
+        void cleanSize() {
             sizeSetting.name = "Blank";
             sizeSetting.value = 0;
         }
 
-        void cleanAll(){
+        void cleanType() {
+            coffeeType = none;
+        }
+
+        void cleanAroma() {
+            aromaSetting.name = "Blank";
+            aromaSetting.value = 6; //sets to none
+        }
+
+        void cleanAll() {
             /// sugar
             cleanSugar();
 
             /// size
             cleanSize();
 
+            /// aroma
+            cleanAroma();
+            
             /// type
-            coffeeType = none;
-
-            /// TODO: aroma
+            cleanType();
         }
 
     private:
@@ -307,7 +375,7 @@ private:
         struct setting {
             std::string name;
             int value;
-        } sugarSetting, sizeSetting;
+        } sugarSetting, sizeSetting, aromaSetting;
 
         enum type {
             americano = 1, cappuccino = 2, latte_machiato = 3, mocha = 4, espresso = 5, none = 6
