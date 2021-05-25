@@ -423,8 +423,7 @@ private:
 
     // Instance of the microwave model
     Espressor espr;
-    espr.
-
+    
     sizeSettingInitial();
 
     std::shared_ptr <Http::Endpoint> httpEndpoint;
