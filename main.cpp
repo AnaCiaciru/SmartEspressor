@@ -218,6 +218,13 @@ private:
     public:
         explicit Espressor() {}
 
+
+        int size_verif(std::string value) {
+            if (value == "small" || value == "medium" || value == "large")
+                return 1;
+            return 0;
+        }
+
         int set(std::string name, std::string val) {
 
             if (name == "size") {
@@ -241,7 +248,8 @@ private:
 
             if (name == "sugar") {
                 /// nu poate seta zaharul daca nu este aleasa marimea paharului
-                if (sizeSetting.name != "small" || sizeSetting.name != "medium" || sizeSetting.name != "large")
+                int rps = size_verif(sizeSetting.name);
+                if (rsp == 0)
                     return -1;
 
                 int value = std::stoi(val);
