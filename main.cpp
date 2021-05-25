@@ -248,8 +248,8 @@ private:
 
             if (name == "sugar") {
                 /// nu poate seta zaharul daca nu este aleasa marimea paharului
-                int rps = size_verif(sizeSetting.name);
-                if (rsp == 0)
+                int rs = size_verif(sizeSetting.name);
+                if (rs == 0)
                     return -1;
 
                 int value = std::stoi(val);
