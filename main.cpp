@@ -219,8 +219,8 @@ private:
         explicit Espressor() {}
 
 
-        int size_verif(std::string value) {
-            if (value == "small" || value == "medium" || value == "large")
+        int size_verif(int value) {
+            if (value == 1 || value == 2 || value == 3)
                 return 1;
             return 0;
         }
@@ -248,7 +248,7 @@ private:
 
             if (name == "sugar") {
                 /// nu poate seta zaharul daca nu este aleasa marimea paharului
-                int rs = size_verif(sizeSetting.name);
+                int rs = size_verif(sizeSetting.value);
                 if (rs == 0)
                     return -1;
 
@@ -260,12 +260,12 @@ private:
                     /// in functie de marimea paharului hotaram cate pliculete de zahar poate pune
 
                     /// small
-                    if (sizeSetting.name == "small") {
+                    if (sizeSetting.value == 1) {
                         if (value > 2)
                             return -2;
                     }
                     /// medium
-                    if (sizeSetting.name == "medium") {
+                    if (sizeSetting.value == 2) {
                         if (value > 3)
                             return -2;
                     }
