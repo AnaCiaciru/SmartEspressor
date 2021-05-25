@@ -216,7 +216,7 @@ private:
 
     class Espressor {
     public:
-        explicit Espressor() { sizeSettingInitial(); }
+        explicit Espressor() {}
 
         int set(std::string name, std::string val) {
 
@@ -241,7 +241,7 @@ private:
 
             if (name == "sugar") {
                 /// nu poate seta zaharul daca nu este aleasa marimea paharului
-                if (sizeSetting.name == "Blank")
+                if (sizeSetting.name != "small" && sizeSetting.name != "medium" && sizeSetting.name != "large")
                     return -1;
 
                 int value = std::stoi(val);
