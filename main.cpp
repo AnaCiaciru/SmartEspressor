@@ -144,9 +144,15 @@ private:
                     .add<Header::ContentType>(MIME(Text, Plain));
 
             response.send(Http::Code::Ok, settingName + " was set to " + val);
-        } else {
+        } else if (setResponse == 0) {
             response.send(Http::Code::Not_Found,
                           settingName + " was not found and or '" + val + "' was not a valid value ");
+        } else if (setResponse == -1) {
+            response.send(Http::Code::Not_Found,
+                          "Te rog seteaza mai intai marimea paharului cu settings/size!");
+        } else {
+            response.send(Http::Code::Not_Found,
+                          "Te rog pune atat zahar cat de mare ti-e paharul! small - max 2, medium - max 3, large - max 5!");
         }
     }
 
@@ -214,16 +220,6 @@ private:
 
         int set(std::string name, std::string val) {
 
-            if (name == "sugar") {
-                int value = std::stoi(val);
-                sugarSetting.name = name;
-                /// putem pune intre 1 si 5 pachetele de zahar
-                if (value >= 1 && value < 5) {
-                    sugarSetting.value = value;
-                    return 1;
-                }
-            }
-
             if (name == "size") {
                 sizeSetting.name = name;
 
@@ -243,6 +239,34 @@ private:
                 }
             }
 
+            if (name == "sugar") {
+                /// nu poate seta zaharul daca nu este aleasa marimea paharului
+                if (sizeSetting.name == "Blank")
+                    return -1;
+
+                int value = std::stoi(val);
+                sugarSetting.name = name;
+
+                /// putem pune intre 1 si 5 pachetele de zahar
+                if (value >= 1 && value < 5) {
+                    /// in functie de marimea paharului hotaram cate pliculete de zahar poate pune
+
+                    /// small
+                    if (sizeSetting.name == "small") {
+                        if (value > 2)
+                            return -2;
+                    }
+                    /// medium
+                    if (sizeSetting.name == "medium") {
+                        if (value > 3)
+                            return -2;
+                    }
+                    /// large - poate sa puna cat vrea in limita disponibila
+
+                    sugarSetting.value = value;
+                    return 1;
+                }
+            }
 
             /// caramel/coconut/vanilla/cacao/rum/none)
             if (name == "aroma") {
@@ -360,9 +384,18 @@ private:
 
             /// aroma
             cleanAroma();
-            
+
             /// type
             cleanType();
+        }
+
+        void setSizeInitial() {
+            sizeSetting.name = "Blank";
+            sizeSetting.value = 0;
+        }
+
+        int getSize() {
+            return sizeSetting.value;
         }
 
     private:
@@ -390,6 +423,9 @@ private:
 
     // Instance of the microwave model
     Espressor espr;
+    espr.
+
+    sizeSettingInitial();
 
     std::shared_ptr <Http::Endpoint> httpEndpoint;
     Rest::Router router;
