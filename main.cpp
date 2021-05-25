@@ -241,7 +241,7 @@ private:
 
             if (name == "sugar") {
                 /// nu poate seta zaharul daca nu este aleasa marimea paharului
-                if (sizeSetting.name != "small" && sizeSetting.name != "medium" && sizeSetting.name != "large")
+                if (sizeSetting.name != "small" || sizeSetting.name != "medium" || sizeSetting.name != "large")
                     return -1;
 
                 int value = std::stoi(val);
