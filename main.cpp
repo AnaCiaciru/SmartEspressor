@@ -216,7 +216,7 @@ private:
 
     class Espressor {
     public:
-        explicit Espressor() {}
+        explicit Espressor() { sizeSettingInitial(); }
 
         int set(std::string name, std::string val) {
 
@@ -423,8 +423,6 @@ private:
 
     // Instance of the microwave model
     Espressor espr;
-    
-    sizeSettingInitial();
 
     std::shared_ptr <Http::Endpoint> httpEndpoint;
     Rest::Router router;
